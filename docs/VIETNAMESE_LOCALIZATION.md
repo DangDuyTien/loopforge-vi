@@ -89,6 +89,15 @@ curl -X POST http://127.0.0.1:8091/api/auth/register \
 
 Đăng nhập về sau dùng `POST /api/auth/password` (không phải `/api/auth/login`).
 
+Nếu database MySQL được tạo từ image cũ, chạy một lần migration生成列 để trang thống kê
+và bộ lọc telemetry không báo `Unknown column 'adapter'`:
+
+```bash
+docker exec -i -e MYSQL_PWD="$LOOPFORGE_DB_ROOT_PASSWORD" loopforge-vi-mysql-1 \
+  mysql --default-character-set=utf8mb4 -uroot loopforge \
+  < migrations/001_run_obs_generated_columns.sql
+```
+
 ## 4. Build image
 
 Cách chuẩn (cần registry để lấy base image):
