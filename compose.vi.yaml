@@ -1,0 +1,9 @@
+# Vietnamese edition overlay: keeps this checkout's source build from reusing
+# the image tag and Compose project of another LoopForge installation on the
+# same machine. Layer it after compose.dev.yaml:
+#   docker compose -f compose.yaml -f compose.dev.yaml -f compose.vi.yaml --profile platform up -d --build
+services:
+  platform:
+    image: loopforge-platform:vi-local
+    environment:
+      AGENTFLOW_ISOLATED_IMAGE: loopforge-platform:vi-local

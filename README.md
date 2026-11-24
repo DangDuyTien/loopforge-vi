@@ -6,6 +6,10 @@
 </p>
 
 <p align="center">
+  <a href="README.vi.md">Tiếng Việt</a> · <a href="README.zh-CN.md">简体中文</a>
+</p>
+
+<p align="center">
   <a href="https://github.com/Tencent/LoopForge/actions/workflows/platform.yml"><img src="https://img.shields.io/github/actions/workflow/status/Tencent/LoopForge/platform.yml?branch=main&label=CI&style=flat-square" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-7b61ff?style=flat-square" alt="MIT License"></a>
   <img src="https://img.shields.io/badge/self--hosted-Docker-526ce8?style=flat-square&logo=docker&logoColor=white" alt="Self-hosted with Docker">
