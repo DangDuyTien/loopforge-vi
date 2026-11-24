@@ -204,30 +204,34 @@ make i18n-check
 - Một số câu ghép động (số lượng + nhãn) có thể đọc ngắn gọn hơn văn nói tự nhiên, do
   cơ chế ghép chuỗi của upstream; nội dung vẫn đúng và không còn tiếng Trung.
 
-## 10. Chạy Codex bằng gói ChatGPT Plus (không gateway, không API key)
+## 10. Claude Code gọi trực tiếp APIMaster (không gateway)
 
-Bản này dùng **Codex CLI** với phiên đăng nhập **ChatGPT Plus** sẵn trên máy, gọi thẳng
-OpenAI — không qua 9router và không cần API key.
-
-Kiểm tra phiên đăng nhập:
-
-```bash
-codex login status     # phải in: Logged in using ChatGPT
-```
+APIMaster có endpoint Anthropic tại `https://api.apimaster.ai/v1/messages`; khác với
+OpenAI-compatible, endpoint này xác thực bằng header `x-api-key` (Claude Code tự gửi khi
+có `ANTHROPIC_API_KEY`). Vì vậy Claude Code gọi thẳng được, không cần 9router.
 
 Cấu hình trong LoopForge:
 
-1. **Trình thực thi → Codex**: chọn chế độ `Đăng nhập máy` (local), không phải API Key.
-2. **Vai trò**: executor `codex`, model `gpt-6-luna`.
-3. Không cần cấu hình Codex API Key hay Base URL.
+1. **Cài đặt cá nhân → Claude Code**: API Key APIMaster, Base URL
+   `https://api.apimaster.ai` (không kèm `/v1`), model `gpt-6-luna`.
+2. **Trình thực thi → Claude Code**: chế độ `API Key` (personal).
+3. **Vai trò**: executor `claude`, model `gpt-6-luna`.
 
-Runner sẽ copy `~/.codex/auth.json` vào `CODEX_HOME` riêng trong sandbox cho từng lần
-chạy; token không lộ ra ngoài máy.
+Kiểm tra nhanh:
 
-Phương án dự phòng khi hết hạn mức Plus: nhập Codex API Key APIMaster
-(`https://api.apimaster.ai/v1`) trong Cài đặt cá nhân và đổi runtime Codex sang `API Key`.
-Lưu ý APIMaster chỉ hỗ trợ OpenAI-compatible, không có endpoint Anthropic, nên **Claude
-Code không dùng trực tiếp được** — phải dùng Codex (hoặc một adapter Anthropic → OpenAI).
+```bash
+curl -s https://api.apimaster.ai/v1/messages \
+  -H "content-type: application/json" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "x-api-key: $APIMASTER_API_KEY" \
+  -d '{"model":"gpt-6-luna","max_tokens":16,"messages":[{"role":"user","content":"hi"}]}'
+```
 
-Các key APIMaster cũ trong `~/.9router` và `~/.config/opencode/opencode.json` đã hết hạn,
-không dùng lại.
+Lưu ý:
+- Không dùng `Authorization: Bearer` cho endpoint Anthropic; phải là `x-api-key`.
+- Nếu Claude CLI treo với cấu hình toàn cục, chạy với `CLAUDE_CONFIG_DIR` sạch — LoopForge
+  đã tự dùng private home cho từng lần chạy.
+- Trong SOP, Claude Code có thể không nạp được MCP `submit_gate_result` (đang điều tra);
+  Codex xử lý được bước này. Chat với Claude thì không bị ảnh hưởng.
+- Phương án dự phòng: Codex CLI dùng phiên **ChatGPT Plus** (`codex login status`), chọn
+  runtime Codex ở chế độ đăng nhập máy.

@@ -447,6 +447,9 @@ func mcpConfigEntries(servers []domain.MCPServerDefinition) (map[string]any, err
 				entry["headers"] = headers
 			}
 		} else {
+			// Claude Code only starts a stdio server when the entry declares
+			// its transport; without this the gate MCP is silently ignored.
+			entry["type"] = "stdio"
 			entry["command"] = m.Command
 			entry["args"] = m.Args
 			if cwd := MCPRuntimeWorkingDirectory(m); cwd != "" {

@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"agentflow/internal/agentlang"
 	"agentflow/internal/domain"
 	"encoding/json"
 	"regexp"
@@ -279,7 +280,7 @@ func assistantLineEvents(line string) []assistantStreamEvent {
 		}
 		return out
 	case "system":
-		return []assistantStreamEvent{{Kind: "status", Text: "已连接模型，开始思考…"}}
+		return []assistantStreamEvent{{Kind: "status", Text: agentlang.Text("Đã kết nối mô hình, bắt đầu suy nghĩ…", "Model connected, starting to think…", "已连接模型，开始思考…")}}
 	}
 	return nil
 }

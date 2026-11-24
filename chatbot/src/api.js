@@ -34,12 +34,18 @@ export function elapsedSeconds(startedAt, finishedAt) {
     return null;
   return Math.floor((end - start) / 1000);
 }
+const elapsedUnit = (zh, en, vi) =>
+  typeof window !== "undefined" && typeof window.lfT === "function" ? window.lfT(zh, en, vi) : zh;
+
 export function formatElapsed(seconds) {
-  if (seconds < 1) return "不到1秒";
+  if (seconds < 1) return elapsedUnit("不到1秒", "less than 1s", "dưới 1 giây");
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const rest = seconds % 60;
-  return `${hours ? `${hours}小时` : ""}${minutes ? `${minutes}分钟` : ""}${rest || (!hours && !minutes) ? `${rest}秒` : ""}`;
+  const h = elapsedUnit("小时", "h", " giờ");
+  const m = elapsedUnit("分钟", "min", " phút");
+  const s = elapsedUnit("秒", "s", " giây");
+  return `${hours ? `${hours}${h}` : ""}${minutes ? `${minutes}${m}` : ""}${rest || (!hours && !minutes) ? `${rest}${s}` : ""}`;
 }
 export const attachmentURL = (attachment, sessionId) =>
   attachment.id?.startsWith("local-attachment-") &&

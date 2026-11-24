@@ -348,7 +348,7 @@ export default function ActivityTrace({
     return (
       <div className="reply-timing execution-trace is-live">
         <div className="execution-summary-row">
-          <span className="live-elapsed">正在处理{elapsed}</span>
+          <span className="live-elapsed">{typeof window !== "undefined" && window.lfT ? window.lfT("正在处理", "Processing", "Đang xử lý ") : "正在处理"}{elapsed}</span>
         </div>
         {divider}
         <div className="execution-body" aria-label="执行过程">
@@ -358,7 +358,7 @@ export default function ActivityTrace({
             <span className="execution-current" data-kind="status">
               <LoaderCircle size={15} strokeWidth={1.7} aria-hidden="true" />
               <span className="execution-current-text">
-                {status || "正在处理…"}
+                {status || (typeof window !== "undefined" && window.lfT ? window.lfT("正在处理…", "Processing…", "Đang xử lý…") : "正在处理…")}
               </span>
             </span>
           )}
@@ -376,7 +376,7 @@ export default function ActivityTrace({
     >
       <summary>
         <span className="execution-summary-row">
-          <span className="execution-total">已处理{elapsed}</span>
+          <span className="execution-total">{typeof window !== "undefined" && window.lfT ? window.lfT("已处理", "Processed", "Đã xử lý ") : "已处理"}{elapsed}</span>
           <ChevronRight className="execution-chevron" size={14} />
         </span>
         {divider}

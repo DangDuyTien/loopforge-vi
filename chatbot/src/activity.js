@@ -534,7 +534,7 @@ export function activityFace(step) {
   if (/search|grep|glob|find/.test(name))
     return { kind: "search", busy: "正在搜索", done: "已搜索" };
   if (/workflow|sop/.test(name))
-    return { kind: "workflow", busy: "正在处理 SOP", done: "已处理 SOP" };
+    return { kind: "workflow", busy: (typeof window !== "undefined" && window.lfT ? window.lfT("正在处理 SOP", "Processing SOP", "Đang xử lý SOP") : "正在处理 SOP"), done: (typeof window !== "undefined" && window.lfT ? window.lfT("已处理 SOP", "Processed SOP", "Đã xử lý SOP") : "已处理 SOP") };
   if (/list|tree/.test(name))
     return { kind: "search", busy: "正在查看", done: "已查看" };
   return {
