@@ -5,5 +5,9 @@
 services:
   platform:
     image: loopforge-platform:vi-local
+    # A stable hostname keeps run workspace bindings valid across container
+    # recreates; otherwise every rebuild looks like a different instance and
+    # approvals are refused.
+    hostname: loopforge-vi
     environment:
       AGENTFLOW_ISOLATED_IMAGE: loopforge-platform:vi-local

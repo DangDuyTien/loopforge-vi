@@ -69,8 +69,11 @@ docker compose \
   --profile platform up -d --build
 ```
 
-`compose.vi.yaml` chỉ đổi tag image và `AGENTFLOW_ISOLATED_IMAGE` để không đụng vào
-installation LoopForge khác trên cùng máy.
+`compose.vi.yaml` chỉ đổi tag image, `AGENTFLOW_ISOLATED_IMAGE` và ghim `hostname:
+loopforge-vi` để không đụng vào installation LoopForge khác trên cùng máy. Hostname cố
+định rất quan trọng: workspace của mỗi run được gắn với hostname của instance, nên nếu
+container bị tạo lại với hostname ngẫu nhiên thì các run cũ sẽ bị coi là thuộc instance
+khác và thao tác phê duyệt bị từ chối.
 
 Truy cập: <http://127.0.0.1:8091> (cấu hình hiện tại; cổng lấy từ `.env`
 `AGENTFLOW_HTTP_PORT`, MySQL từ `LOOPFORGE_MYSQL_PORT`).
