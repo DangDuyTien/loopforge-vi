@@ -2834,3 +2834,28 @@ textarea.pw-input{height:auto;min-height:64px;padding:9px 12px;line-height:1.55;
   .pw-footer{padding:12px 16px}
   .pw-row2,.pw-actions,.pw-status-list{grid-template-columns:1fr}
 }
+
+/* Vietnamese labels are longer than the upstream copy; on narrow screens the
+   project KPI strip used to clip its last metric. Wrap it into two columns
+   instead of hiding content. */
+@media (max-width: 720px) {
+  .project-context-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-self: stretch;
+  }
+  .project-context-metrics > div,
+  .project-context-metrics > button {
+    min-width: 0;
+    padding: 8px 10px;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  .project-context-metrics span {
+    font-size: 9.5px;
+    line-height: 1.3;
+  }
+  .project-context-metrics b {
+    max-width: none;
+  }
+}

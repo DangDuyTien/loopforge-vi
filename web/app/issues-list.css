@@ -446,3 +446,26 @@ html[data-theme="dark"] #issuesView .issue-progress-cell:is(.warn, .confirm) b {
   #issuesView *::after,
   .issue-action-popover { transition: none !important; animation: none !important; }
 }
+
+/* Vietnamese metric labels need more room; on phones lay the KPI strip out as
+   a 2×2 grid so the fourth metric is not clipped. */
+@media (max-width: 720px) {
+  #issuesView .project-context-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    overflow: visible;
+    flex-wrap: wrap;
+  }
+  #issuesView .project-context-metrics > :is(button, div) {
+    min-width: 0;
+    padding: 8px 10px;
+    border-left: 0;
+    border-top: 1px solid var(--hui-border);
+  }
+  #issuesView .project-context-metrics span {
+    font-size: 10.5px;
+    line-height: 1.35;
+    white-space: normal;
+  }
+}
