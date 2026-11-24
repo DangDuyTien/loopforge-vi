@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"agentflow/internal/agentlang"
 	"context"
 	"crypto/sha256"
 	"errors"
@@ -87,24 +88,24 @@ func (e *Engine) executeSOPNode(ctx context.Context, runID string, wf domain.Wor
 		e.updateRun(runID, func(r *domain.Run) {
 			if nr := r.Nodes[node.ID]; nr != nil {
 				nr.ChildRunID = child.ID
-				nr.Activity = "正在执行子 SOP " + childID
+				nr.Activity = agentlang.Text("Đang chạy SOP con ", "Running child SOP ", "正在执行子 SOP ") + childID
 			}
 			e.event(r, node.ID, "sop.started", node.Name+" 启动子流程 "+childID)
 		})
 		e.observe(runID, node.ID, domain.TelemetryEvent{
 			Category: "orchestration", Name: "sop.child.started", Phase: "start",
-			Message:    "子 SOP 已启动",
+			Message:    agentlang.Text("SOP con đã khởi chạy", "Child SOP started", "子 SOP 已启动"),
 			Attributes: map[string]any{"childRunId": child.ID, "sopWorkflowId": childID},
 		})
 	} else {
 		e.updateRun(runID, func(r *domain.Run) {
 			if nr := r.Nodes[node.ID]; nr != nil {
-				nr.Activity = "正在执行子 SOP " + childID
+				nr.Activity = agentlang.Text("Đang chạy SOP con ", "Running child SOP ", "正在执行子 SOP ") + childID
 			}
 		})
 		e.observe(runID, node.ID, domain.TelemetryEvent{
 			Category: "orchestration", Name: "sop.child.reattached", Phase: "start",
-			Message:    "重新接上仍在运行的子 SOP",
+			Message:    agentlang.Text("Kết nối lại SOP con đang chạy", "Reattached to the running child SOP", "重新接上仍在运行的子 SOP"),
 			Attributes: map[string]any{"childRunId": child.ID, "sopWorkflowId": childID},
 		})
 	}

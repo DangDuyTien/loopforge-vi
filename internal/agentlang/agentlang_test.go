@@ -61,3 +61,18 @@ func TestAppendOnEmptyPromptReturnsDirective(t *testing.T) {
 		t.Fatalf("Append(empty) = %q, want the English directive", got)
 	}
 }
+
+func TestTextPicksEditionLanguage(t *testing.T) {
+	t.Setenv(EnvAgentLanguage, "vi")
+	if got := Text("vi", "en", "zh"); got != "vi" {
+		t.Fatalf("Text() = %q, want vi", got)
+	}
+	t.Setenv(EnvAgentLanguage, "en")
+	if got := Text("vi", "en", "zh"); got != "en" {
+		t.Fatalf("Text() = %q, want en", got)
+	}
+	t.Setenv(EnvAgentLanguage, "zh")
+	if got := Text("vi", "en", "zh"); got != "zh" {
+		t.Fatalf("Text() = %q, want zh", got)
+	}
+}

@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"agentflow/internal/agentlang"
 	"context"
 	"encoding/json"
 	"errors"
@@ -289,7 +290,7 @@ func (e *Engine) dispatchRunnerTask(ctx context.Context, runnerID string, run do
 	if sink != nil {
 		sink(domain.TelemetryEvent{
 			Category: "sandbox", Name: "runner.dispatch", Phase: "start",
-			Message:    fmt.Sprintf("任务下发到执行机器 %s（provider=%s task=%s）", runnerID, ex.Kind, task.ID),
+			Message:    fmt.Sprintf(agentlang.Text("Đã giao việc cho trình thực thi %s (provider=%s task=%s)", "Task dispatched to runner %s (provider=%s task=%s)", "任务下发到执行机器 %s（provider=%s task=%s）"), runnerID, ex.Kind, task.ID),
 			Attributes: map[string]any{"provider": ex.Kind, "runnerId": runnerID, "taskId": task.ID},
 		})
 	}
@@ -311,7 +312,7 @@ func (e *Engine) dispatchRunnerTask(ctx context.Context, runnerID string, run do
 		if sink != nil {
 			sink(domain.TelemetryEvent{
 				Category: "sandbox", Name: "runner.completed", Phase: "finish",
-				Message:    fmt.Sprintf("执行机器任务完成（task=%s attempt=%d 产物 %d 个）", final.ID, final.Attempt, len(final.Artifacts)),
+				Message:    fmt.Sprintf(agentlang.Text("Trình thực thi hoàn tất (task=%s attempt=%d, %d sản phẩm đầu ra)", "Runner finished (task=%s attempt=%d, %d artifacts)", "执行机器任务完成（task=%s attempt=%d 产物 %d 个）"), final.ID, final.Attempt, len(final.Artifacts)),
 				Attributes: map[string]any{"taskId": final.ID, "attempt": final.Attempt, "artifacts": len(final.Artifacts)},
 			})
 		}
@@ -459,7 +460,7 @@ func (e *Engine) dispatchRunnerScript(ctx context.Context, runnerID string, run 
 	if sink != nil {
 		sink(domain.TelemetryEvent{
 			Category: "sandbox", Name: "runner.dispatch", Phase: "start",
-			Message:    fmt.Sprintf("脚本下发到执行机器 %s（task=%s）", runnerID, task.ID),
+			Message:    fmt.Sprintf(agentlang.Text("Đã giao script cho trình thực thi %s (task=%s)", "Script dispatched to runner %s (task=%s)", "脚本下发到执行机器 %s（task=%s）"), runnerID, task.ID),
 			Attributes: map[string]any{"provider": "terminal", "runnerId": runnerID, "taskId": task.ID},
 		})
 	}
@@ -653,7 +654,7 @@ func (e *Engine) dispatchRunnerCommand(ctx context.Context, runnerID, runID, nod
 	}
 	e.notifyRunnerDispatch("terminal")
 	if gateSink != nil {
-		gateSink(domain.TelemetryEvent{Category: "process", Name: "process.started", Phase: "start", Message: "门禁命令下发到执行器：" + command})
+		gateSink(domain.TelemetryEvent{Category: "process", Name: "process.started", Phase: "start", Message: agentlang.Text("Đã giao lệnh cổng kiểm soát cho trình thực thi: ", "Gate command sent to runner: ", "门禁命令下发到执行器：") + command})
 	}
 	final, err := e.awaitRunnerTask(ctx, task.ID, gateSink)
 	if err != nil {
@@ -662,7 +663,7 @@ func (e *Engine) dispatchRunnerCommand(ctx context.Context, runnerID, runID, nod
 	switch final.Status {
 	case domain.RunnerTaskSuccess:
 		if gateSink != nil {
-			gateSink(domain.TelemetryEvent{Category: "process", Name: "process.finished", Phase: "finish", Message: "门禁在执行器上执行完成"})
+			gateSink(domain.TelemetryEvent{Category: "process", Name: "process.finished", Phase: "finish", Message: agentlang.Text("Cổng kiểm soát đã chạy xong trên trình thực thi", "Gate finished on the runner", "门禁在执行器上执行完成")})
 		}
 		return final.Result, nil
 	case domain.RunnerTaskCanceled:
@@ -739,14 +740,14 @@ func (e *Engine) awaitRunnerTask(ctx context.Context, taskID string, sink runtim
 		case domain.RunnerTaskLeased:
 			sink(domain.TelemetryEvent{
 				Category: "sandbox", Name: "runner.claimed", Phase: "progress",
-				Message:  "执行机器已领取任务，正在准备工作区和沙箱",
+				Message:  agentlang.Text("Trình thực thi đã nhận việc, đang chuẩn bị không gian làm việc và môi trường cách ly", "Runner claimed the task and is preparing the workspace and sandbox", "执行机器已领取任务，正在准备工作区和沙箱"),
 				Provider: task.Provider,
 				Source:   domain.TelemetrySource{Layer: "executor", Adapter: "runner-v1", Provider: task.Provider},
 			})
 		case domain.RunnerTaskRunning:
 			sink(domain.TelemetryEvent{
 				Category: "process", Name: "runner.started", Phase: "start",
-				Message:  "执行机器已启动任务",
+				Message:  agentlang.Text("Trình thực thi đã khởi chạy công việc", "Runner started the task", "执行机器已启动任务"),
 				Provider: task.Provider,
 				Source:   domain.TelemetrySource{Layer: "executor", Adapter: "runner-v1", Provider: task.Provider},
 			})

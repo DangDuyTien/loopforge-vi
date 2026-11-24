@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"agentflow/internal/agentlang"
 	"log"
 	"strings"
 	"time"
@@ -132,7 +133,7 @@ func (e *Engine) forceTerminate(runID, status, msg string) {
 				if status == "cancelled" {
 					nr.Status = "cancelled"
 					nr.Error = ""
-					nr.Activity = "已由用户取消"
+					nr.Activity = agentlang.Text("Đã bị người dùng hủy", "Cancelled by the user", "已由用户取消")
 				} else {
 					nr.Status = "failed"
 					nr.Error = msg

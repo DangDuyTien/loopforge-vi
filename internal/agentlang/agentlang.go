@@ -78,3 +78,17 @@ func Append(prompt string) string {
 	}
 	return strings.TrimRight(prompt, "\n") + "\n\n" + directive + "\n"
 }
+
+// Text picks a user-facing backend message in the edition language. Backend
+// logs and errors cannot read the browser preference, so they follow the same
+// deployment-level setting as agent output.
+func Text(vi, en, zh string) string {
+	switch Current() {
+	case English:
+		return en
+	case Chinese:
+		return zh
+	default:
+		return vi
+	}
+}

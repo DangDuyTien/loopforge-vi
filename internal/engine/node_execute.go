@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"agentflow/internal/agentlang"
 	"agentflow/internal/domain"
 	"agentflow/internal/gitwork"
 	"agentflow/internal/repo"
@@ -870,14 +871,14 @@ func (e *Engine) executeNode(ctx context.Context, runID string, wf domain.Workfl
 			output, err = runOnce("")
 		}
 		if err != nil && strings.Contains(err.Error(), "without a terminal result") {
-			e.observe(runID, node.ID, domain.TelemetryEvent{Category: "orchestration", Name: "agent.loop", Phase: "finish", Message: "执行器未返回 result，按工作区产物继续门禁，不再重跑 Agent", Attributes: map[string]any{"iteration": iteration}})
+			e.observe(runID, node.ID, domain.TelemetryEvent{Category: "orchestration", Name: "agent.loop", Phase: "finish", Message: agentlang.Text("CLI không trả về result; tiếp tục cổng kiểm soát bằng sản phẩm trong không gian làm việc, không chạy lại Agent", "The CLI returned no result; continuing the gate with workspace artifacts instead of rerunning the agent", "执行器未返回 result，按工作区产物继续门禁，不再重跑 Agent"), Attributes: map[string]any{"iteration": iteration}})
 			err = nil
 		}
 		var submitted *domain.GateResult
 		if err == nil && requiresSubmit {
 			submitted, err = readGateResultFrom(outputs, submitPath)
 			if err != nil || submitted == nil {
-				firstProblem := "未调用 submit_gate_result"
+				firstProblem := agentlang.Text("chưa gọi submit_gate_result", "did not call submit_gate_result", "未调用 submit_gate_result")
 				if err != nil {
 					firstProblem = err.Error()
 					if reported == nil {
@@ -893,7 +894,7 @@ func (e *Engine) executeNode(ctx context.Context, runID string, wf domain.Workfl
 				if sessionID == "" {
 					err = fmt.Errorf("%s，且执行器没有返回可恢复的 CLI session ID", firstProblem)
 				} else {
-					e.observe(runID, node.ID, domain.TelemetryEvent{Category: "verification", Name: "gate.submit.missing", Phase: "progress", Level: "warn", Message: firstProblem + "，恢复同一 CLI session 要求重新提交", Attributes: map[string]any{"iteration": iteration, "sessionId": sessionID}})
+					e.observe(runID, node.ID, domain.TelemetryEvent{Category: "verification", Name: "gate.submit.missing", Phase: "progress", Level: "warn", Message: firstProblem + agentlang.Text("; phiên CLI được khôi phục yêu cầu gửi lại", "; the CLI session was restored and must resubmit", "，恢复同一 CLI session 要求重新提交"), Attributes: map[string]any{"iteration": iteration, "sessionId": sessionID}})
 					output, err = runOnce(gateMissingRetryMarker)
 					if e.dropLostCLISession(runID, node.ID, output, err) {
 						output, err = runOnce("")
@@ -904,7 +905,7 @@ func (e *Engine) executeNode(ctx context.Context, runID string, wf domain.Workfl
 				}
 			}
 			if err == nil && submitted == nil {
-				err = fmt.Errorf("未收到 submit_gate_result，恢复 CLI session 后仍未提交")
+				err = fmt.Errorf(agentlang.Text("Không nhận được submit_gate_result; phiên CLI được khôi phục nhưng vẫn chưa gửi", "submit_gate_result was not received; the CLI session was restored but nothing was submitted", "未收到 submit_gate_result，恢复 CLI session 后仍未提交"))
 			}
 			if err != nil {
 				failedAction = "human"
@@ -915,7 +916,7 @@ func (e *Engine) executeNode(ctx context.Context, runID string, wf domain.Workfl
 						nr.GateResult = &copy
 					}
 				})
-				e.observe(runID, node.ID, domain.TelemetryEvent{Category: "verification", Name: "gate.submit.received", Phase: "finish", Message: "收到 Agent 节点终态：" + submitted.Decision, Attributes: map[string]any{"decision": submitted.Decision, "reason": submitted.Reason}})
+				e.observe(runID, node.ID, domain.TelemetryEvent{Category: "verification", Name: "gate.submit.received", Phase: "finish", Message: agentlang.Text("Đã nhận trạng thái cuối của Agent: ", "Received the agent node terminal state: ", "收到 Agent 节点终态：") + submitted.Decision, Attributes: map[string]any{"decision": submitted.Decision, "reason": submitted.Reason}})
 				err, failedAction, gateRejected = applyGateResult(submitted, node.RejectTo)
 				if err != nil {
 					// A terminal decision short-circuits artifact validation and
@@ -1071,7 +1072,7 @@ func (e *Engine) executeNode(ctx context.Context, runID string, wf domain.Workfl
 				if !shouldCommitNodeOutcome(*r, nr, executionGeneration, executionAttempt, false) {
 					return
 				}
-				nr.Output, nr.Error, nr.Status, nr.Activity, nr.FinishedAt = output, err.Error(), "waiting_approval", "等待人工确认", time.Now().UTC()
+				nr.Output, nr.Error, nr.Status, nr.Activity, nr.FinishedAt = output, err.Error(), "waiting_approval", agentlang.Text("Chờ xác nhận thủ công", "Waiting for manual confirmation", "等待人工确认"), time.Now().UTC()
 				message := "Agent 请求人工确认"
 				if nr.GateResult != nil && strings.TrimSpace(nr.GateResult.ActionRequired) != "" {
 					message += "：" + nr.GateResult.ActionRequired
@@ -1220,7 +1221,7 @@ func (e *Engine) dropLostCLISession(runID, nodeID, output string, err error) boo
 	if dropped {
 		e.observe(runID, nodeID, domain.TelemetryEvent{
 			Category: "lifecycle", Name: "agent.session.dropped", Phase: "progress", Level: "warn",
-			Message: "CLI 会话不存在，已放弃续跑并重新开始本节点",
+			Message: agentlang.Text("Phiên CLI không tồn tại; bỏ tiếp tục và chạy lại bước này", "The CLI session is gone; dropping the resume and restarting this step", "CLI 会话不存在，已放弃续跑并重新开始本节点"),
 		})
 	}
 	return dropped

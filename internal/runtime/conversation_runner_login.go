@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"agentflow/internal/agentlang"
 	"bytes"
 	"context"
 	"crypto/sha256"
@@ -143,7 +144,7 @@ func prepareRunnerLogin(home AgentCLIHome, login conversationLoginSpec, enabled 
 		data, err = readRunnerLoginFile(configDir, login.file)
 	}
 	if err != nil {
-		return nil, nil, fmt.Errorf("执行机器上的 %s 本机登录态不可用，请检查 Runner 账户的 CLI 登录", login.label)
+		return nil, nil, fmt.Errorf(agentlang.Text("Trên trình thực thi, %s chưa đăng nhập. Hãy kiểm tra đăng nhập CLI của tài khoản Runner", "On the runner, %s is not signed in. Check the CLI login of the runner account", "执行机器上的 %s 本机登录态不可用，请检查 Runner 账户的 CLI 登录"), login.label)
 	}
 	if login.binding == BindCodex || login.binding == BindClaudeCode {
 		source := fileRunnerLoginSource(login, configDir)

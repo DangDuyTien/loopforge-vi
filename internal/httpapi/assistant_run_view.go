@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"agentflow/internal/agentlang"
 	"encoding/json"
 	"regexp"
 	"sort"
@@ -327,7 +328,7 @@ func assistantRunProblems(run domain.Run, owner string, limit int) []assistantRu
 				reason = domain.ApprovalWaitReason(run, id)
 			}
 			if reason == "" {
-				reason = "等待人工确认"
+				reason = agentlang.Text("Chờ xác nhận thủ công", "Waiting for manual confirmation", "等待人工确认")
 			}
 			out = append(out, assistantRunProblem{NodeID: id, NodeName: name, Kind: "waiting_approval", Reason: truncateRunes(reason, limit), Credential: assistantCredentialProblem(reason, owner)})
 		}

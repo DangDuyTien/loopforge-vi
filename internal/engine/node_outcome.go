@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"agentflow/internal/agentlang"
 	"agentflow/internal/domain"
 	"agentflow/internal/repo"
 	"agentflow/internal/runtime"
@@ -196,7 +197,7 @@ func (e *Engine) nodeCancelled(runID string, node domain.WorkflowNode) {
 		} else {
 			nr.Status = "cancelled"
 			nr.Error = ""
-			nr.Activity = "已由用户取消"
+			nr.Activity = agentlang.Text("Đã bị người dùng hủy", "Cancelled by the user", "已由用户取消")
 		}
 		nr.FinishedAt = time.Now().UTC()
 		if r.PauseRequested {
@@ -237,7 +238,7 @@ func (e *Engine) parkForResumeAt(runID string, generation int, message string) {
 		if domain.TerminalRunStatus(r.Status) {
 			return
 		}
-		resetInFlightNodesForResume(r, "执行实例退出，等待恢复")
+		resetInFlightNodesForResume(r, agentlang.Text("Instance đã thoát, chờ khôi phục", "Runner instance exited, waiting to recover", "执行实例退出，等待恢复"))
 		r.Status = "running"
 		e.event(r, "", "run.parked", message)
 		parked = true

@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"agentflow/internal/agentlang"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -20,11 +21,11 @@ func clarifyProcessLog(event *domain.TelemetryEvent) {
 		return
 	}
 	if event.Level == "error" {
-		event.Message = "执行器失败：" + event.Message
+		event.Message = agentlang.Text("CLI thất bại: ", "Runner failed: ", "执行器失败：") + event.Message
 		return
 	}
 	if event.Message == "process exited successfully" {
-		event.Message = "执行器退出 0"
+		event.Message = agentlang.Text("CLI thoát với mã 0", "Runner exited 0", "执行器退出 0")
 	}
 }
 

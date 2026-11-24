@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"agentflow/internal/agentlang"
 	"context"
 	"fmt"
 	"strings"
@@ -212,7 +213,7 @@ func observationActivity(observation domain.TelemetryEvent) (activity string, ok
 		return "模型正在生成输出", true
 	case "tool":
 		if observation.Name == "tool.call" && (observation.Phase != "finish" || observation.Level == "error") {
-			return "调用工具：" + observation.Message, true
+			return agentlang.Text("Gọi công cụ: ", "Tool call: ", "调用工具：") + observation.Message, true
 		}
 		return "", false
 	case "sandbox":

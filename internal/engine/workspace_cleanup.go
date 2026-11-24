@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"agentflow/internal/agentlang"
 	"agentflow/internal/domain"
 	"context"
 	"fmt"
@@ -521,7 +522,7 @@ func (e *Engine) settleOrphan(runID, reason string) {
 			if nr.Status == "running" || nr.Status == "pending_input" || (status == "cancelled" && nr.Status == "waiting_approval") {
 				if status == "cancelled" {
 					nr.Status, nr.Error, nr.FinishedAt = "cancelled", "", now
-					nr.Activity = "已由用户取消"
+					nr.Activity = agentlang.Text("Đã bị người dùng hủy", "Cancelled by the user", "已由用户取消")
 				} else {
 					nr.Status, nr.Error, nr.FinishedAt = "failed", reason, now
 				}

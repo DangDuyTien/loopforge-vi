@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"agentflow/internal/agentlang"
 	"agentflow/internal/domain"
 	"agentflow/internal/repo"
 	"context"
@@ -239,7 +240,7 @@ func (e *Engine) ResumeInterruptedRuns() []string {
 			continue
 		}
 		e.updateRun(r.ID, func(current *domain.Run) {
-			resetInFlightNodesForResume(current, "执行实例退出，等待恢复")
+			resetInFlightNodesForResume(current, agentlang.Text("Instance đã thoát, chờ khôi phục", "Runner instance exited, waiting to recover", "执行实例退出，等待恢复"))
 			current.Status = "running"
 			e.event(current, "", "run.resumed", fmt.Sprintf("服务恢复后继续执行（generation=%d, previousOwner=%s）", acquired.Generation, previousOwner))
 		})
