@@ -131,7 +131,7 @@ function renderRunnersView(){
   const bindHTTPS=$('#bindHttpsOrigin'),bindHTTP=$('#bindHttpOrigin'),bindHost=$('#bindServerHost');
   if(bindHTTPS)bindHTTPS.textContent=httpsOrigin;if(bindHTTP)bindHTTP.textContent=httpOrigin;if(bindHost)bindHost.textContent=host;
   const tokenSpan=$('#bindToken');
-  if(tokenSpan)tokenSpan.textContent=state.runnerBindCode?.code||'生成中…';
+  if(tokenSpan)tokenSpan.textContent=state.runnerBindCode?.code||lfT('生成中…','Generating…','Đang tạo…');
   const copyBtn=$('#copyBindCommand');
   if(copyBtn)copyBtn.onclick=()=>{
     const text=$('#bindCliCommand')?.innerText||'';

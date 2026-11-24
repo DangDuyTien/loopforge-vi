@@ -161,12 +161,21 @@
   }
   window.lfTranslate = translate;
 
-  function skipped(el) {
-    return !el || SKIP.has(el.tagName) || (el.closest && el.closest(SKIP_SEL));
+  // PRE usually holds commands, logs or code and must stay byte-for-byte.
+  // A few PRE blocks only carry prose (a status label or a diff hint), so
+  // translate those while leaving anything command-like untouched.
+  const CODEISH = /[$<>{}=/\\;|#]/;
+  function skipped(el, text) {
+    if (!el) return true;
+    if (el.tagName === 'PRE') {
+      const value = (text == null ? el.textContent : text) || '';
+      return CODEISH.test(value);
+    }
+    return SKIP.has(el.tagName) || (el.closest && el.closest(SKIP_SEL));
   }
   function translateText(node) {
     const parent = node.parentElement;
-    if (skipped(parent)) return;
+    if (skipped(parent, node.nodeValue)) return;
     const next = parent.closest(DATA_SEL) ? translateExact(node.nodeValue) : translate(node.nodeValue);
     if (next !== node.nodeValue) node.nodeValue = next;
   }
@@ -184,7 +193,9 @@
   function walk(node) {
     if (node.nodeType === 3) return translateText(node);
     if (node.nodeType !== 1) return;
-    if (skipped(node)) { if (node.tagName === 'TEXTAREA') translateAttrs(node); return; }
+    // A PRE may mix command text with prose labels in child spans; walk it so
+    // the prose still translates while each code-like text node is skipped.
+    if (skipped(node) && node.tagName !== 'PRE') { if (node.tagName === 'TEXTAREA') translateAttrs(node); return; }
     translateAttrs(node);
     const tw = document.createTreeWalker(node, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
       acceptNode: n => {
