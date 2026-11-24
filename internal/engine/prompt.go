@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"agentflow/internal/agentlang"
 	"agentflow/internal/domain"
 	"agentflow/internal/repo"
 	"fmt"
@@ -18,7 +19,7 @@ func renderPromptWithStore(st *repo.Store, wf domain.WorkflowDefinition, node do
 			role = &agent
 		}
 	}
-	return applyPromptPlaceholders(st, wf, node, role, run)
+	return agentlang.Append(applyPromptPlaceholders(st, wf, node, role, run))
 }
 
 func applyPromptPlaceholders(st *repo.Store, wf domain.WorkflowDefinition, node domain.WorkflowNode, role *domain.AgentDefinition, run domain.Run) string {

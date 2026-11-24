@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"agentflow/internal/agentlang"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -344,7 +345,7 @@ func classifyClarifyProtocolError(err error) string {
 }
 
 func clarifySystemPrompt(intro, mcpStep, focus string) string {
-	return fmt.Sprintf(`%s
+	return agentlang.Append(fmt.Sprintf(`%s
 1. 用 Read/Grep/Glob 读取当前工作目录代码，定位这条工作项要改的位置和现有实现
 %s
 3. 围绕%s，基于代码、原单/评论和对话历史判断还缺什么阻塞开工的信息
@@ -364,6 +365,6 @@ func clarifySystemPrompt(intro, mcpStep, focus string) string {
 - ready=true 时 summary 按「本次范围 / 不在本次范围 / 验收标准 / 假设」分段给出结论
 - 工具校验失败时修正参数并重新提交
 - TAPD 的 id、workspace_id、entry_id 必须用字符串
-- 思考用中文对用户说正在读代码或原单
-`, intro, mcpStep, focus)
+- 思考时用用户使用的语言说明正在读代码或原单
+`, intro, mcpStep, focus))
 }

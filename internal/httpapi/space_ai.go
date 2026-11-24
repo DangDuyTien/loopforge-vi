@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"agentflow/internal/agentlang"
 	"agentflow/internal/domain"
 
 	"github.com/gin-gonic/gin"
@@ -127,7 +128,7 @@ func (h *spacesHandlers) askAI(c *gin.Context, room domain.ChatRoom, space domai
 // same requirement, artifacts, SOPs and recent discussion the members see.
 func (h *spacesHandlers) aiPrompt(room domain.ChatRoom, space domain.RequirementSpace, msg domain.ChatMessage) string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "你是会话「%s」里的 AI 协作者。回答要具体、简洁，用中文；不确定就直说。\n", room.Name)
+	fmt.Fprintf(&b, "你是会话「%s」里的 AI 协作者。回答要具体、简洁，使用用户使用的语言；不确定就直说。\n", room.Name)
 	if req := h.requirementOf(space); req != nil {
 		fmt.Fprintf(&b, "\n这个会话关联了平台需求 #%d「%s」，状态 %s，优先级 %s。\n", req.Number, req.Title, req.Status, req.Priority)
 		if issue, ok := h.repo.Issue(req.ID); ok && issue.Description != "" {
@@ -191,7 +192,7 @@ func (h *spacesHandlers) aiPrompt(room domain.ChatRoom, space domain.Requirement
 		fmt.Fprintf(&b, "%s：%s%s\n", m.Author, roomTrim(m.Body, 600), attachmentNote(m.Attachments))
 	}
 	fmt.Fprintf(&b, "\n现在 %s 对你说：\n%s%s\n\n%s", msg.Author, msg.Body, attachmentNote(msg.Attachments), spaceDeliverablePrompt)
-	return b.String()
+	return agentlang.Append(b.String())
 }
 
 func indent(s string) string {
