@@ -584,3 +584,14 @@
     margin-top: 25px;
   }
 }
+
+/* Vietnamese starter tags run longer than the English copy; let them wrap
+   inside the card instead of being clipped by the card's overflow. */
+html[data-lang="vi"] .home-starter-flow {
+  flex-wrap: wrap;
+  column-gap: 10px;
+  row-gap: 6px;
+}
+html[data-lang="vi"] .home-starter-flow > span + span::before {
+  display: none;
+}

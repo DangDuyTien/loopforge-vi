@@ -1118,12 +1118,12 @@ function obsUsageKpis(view){
   const convTip=convTokens?[['其中对话改代码',formatTokens(convTokens)]]:[];
   const usage=obsKpiGroup('投入 · SOP + 对话改代码',[
     {label:lfT(`${rangeName} Token`,`${rangeName} tokens`),value:tokenTotal,delta:dl(d('tokens'),true),spark:spark('tokens'),foot:tokenFoot,tip:[['输入',view.inputTokens!=null?formatTokens(view.inputTokens):'—'],['输出',view.outputTokens!=null?formatTokens(view.outputTokens):'—'],['缓存读',formatTokens(cache.read||0)],['缓存写',formatTokens(cache.write||0)],...convTip,...(view.period?[['累计',formatTokens(summary.totalTokens)]]:[]),...deltaTip]},
-    {label:lfT(`${rangeName}成本`,`${rangeName} cost`),value:costLabel(totalCost,view.costKnown),delta:dl(d('cost'),true),spark:spark('cost'),foot:costFoot+cum(` · 累计 ${costLabel(summary.totalCostCny,summary.costUnknownRuns===0)}`),tip:[...(convCost?[['其中对话改代码',costLabel(convCost,true)]]:[]),'人民币统计：Hy 保留上报金额；其他模型按公开标准单价测算。优先人民币定价，美元按 1 USD = 7 CNY 折算。缺少模型或 Token 分项时标为未识别；不代表实际结算账单。',...deltaTip]},
+    {label:lfT(`${rangeName} 成本`,`${rangeName} cost`),value:costLabel(totalCost,view.costKnown),delta:dl(d('cost'),true),spark:spark('cost'),foot:costFoot+cum(` · 累计 ${costLabel(summary.totalCostCny,summary.costUnknownRuns===0)}`),tip:[...(convCost?[['其中对话改代码',costLabel(convCost,true)]]:[]),'人民币统计：Hy 保留上报金额；其他模型按公开标准单价测算。优先人民币定价，美元按 1 USD = 7 CNY 折算。缺少模型或 Token 分项时标为未识别；不代表实际结算账单。',...deltaTip]},
     {label:'缓存命中',value:cache.rate==null?'—':cache.rate.toFixed(0),unit:cache.rate==null?'':'%',delta:cache.rate!=null&&cache.prevRate!=null?obsDelta(cache.rate,cache.prevRate,false,'pt'):'',meter:cache.rate==null?0:cache.rate,foot:`${lfT('缓存读','Cache reads')} ${formatTokens(cache.read||0)}`,tip:['缓存命中 = 缓存读 ÷（输入 + 缓存读）。越高越省。']},
   ]);
   const output=obsKpiGroup('SOP 产出与质量',[
-    {label:lfT(`${rangeName}运行`,`${rangeName} runs`),value:String(total),delta:dl(d('runs')),spark:spark('runs'),foot:`${view.active||0} 进行中${cum(` · 累计 ${summary.totalRuns||0}`)}`,tip:['只统计 SOP 运行，对话工作区不算运行。',['成功',String(succeeded)],['失败',String(failed)],['取消',String(view.cancelled||0)],...deltaTip]},
-    {label:lfT(`${rangeName}需求`,`${rangeName} requirements`),value:String(view.uniqueIssues||0),delta:dl(d('issues')),spark:spark('issues'),foot:`每单 ${view.runsPerIssue!=null?Number(view.runsPerIssue).toFixed(1):'—'} 次${cum(` · 累计 ${summary.uniqueIssues||0}`)}`,tip:['有 SOP 运行的需求，按关联的 Issue / TAPD 单去重；对话改代码的需求见下方「对话改代码」。',...deltaTip]},
+    {label:lfT(`${rangeName} 运行`,`${rangeName} runs`),value:String(total),delta:dl(d('runs')),spark:spark('runs'),foot:`${view.active||0} 进行中${cum(` · 累计 ${summary.totalRuns||0}`)}`,tip:['只统计 SOP 运行，对话工作区不算运行。',['成功',String(succeeded)],['失败',String(failed)],['取消',String(view.cancelled||0)],...deltaTip]},
+    {label:lfT(`${rangeName} 需求`,`${rangeName} requirements`),value:String(view.uniqueIssues||0),delta:dl(d('issues')),spark:spark('issues'),foot:`每单 ${view.runsPerIssue!=null?Number(view.runsPerIssue).toFixed(1):'—'} 次${cum(` · 累计 ${summary.uniqueIssues||0}`)}`,tip:['有 SOP 运行的需求，按关联的 Issue / TAPD 单去重；对话改代码的需求见下方「对话改代码」。',...deltaTip]},
     {label:'成功率',value:total?percent(view.successRate):'—',meter:total?view.successRate:0,foot:successFoot,tip:['成功率 = 成功 ÷（成功 + 失败），不含取消与进行中。']},
     {label:'P95 执行',value:view.p95?duration(view.p95):'—',foot:`平均 ${view.avgExec?duration(view.avgExec):'—'}${view.wait?` · 等待 ${duration(view.wait)}`:''}`,tip:['P95：95% 的执行在这个时间内完成。外部工作流按其上报的执行耗时统计。']},
   ],escapeHTML(rangeName));
@@ -1146,9 +1146,9 @@ function obsConversationKpis(view,rangeName,totalTokens,totalCost){
   const pct=v=>v>0&&v<1?'不到 1%':Math.round(v)+'%';
   const tokenShare=share(tokens,totalTokens),costShare=share(cost,totalCost);
   return obsKpiGroup('对话改代码 · 不走 SOP',[
-    {label:lfT(`${rangeName}需求`,`${rangeName} requirements`),value:String(view.conversationIssues||0),foot:`${view.period?`累计 ${summary.conversationIssues||0} 个，`:'其中 '}${summary.conversationIssuesWithMr||0} 个已提 PR · ${summary.conversationIssuesDelivered||0} 个已交付`,tip:['在对话里识别出、关联到对话工作区的需求，按需求去重。','只在对话里完成的需求，在「交付」页标为「对话直接交付」，PR 合入默认分支即算已交付。']},
+    {label:lfT(`${rangeName} 需求`,`${rangeName} requirements`),value:String(view.conversationIssues||0),foot:`${view.period?`累计 ${summary.conversationIssues||0} 个，`:'其中 '}${summary.conversationIssuesWithMr||0} 个已提 PR · ${summary.conversationIssuesDelivered||0} 个已交付`,tip:['在对话里识别出、关联到对话工作区的需求，按需求去重。','只在对话里完成的需求，在「交付」页标为「对话直接交付」，PR 合入默认分支即算已交付。']},
     {label:lfT(`${rangeName} Token`,`${rangeName} tokens`),value:formatTokens(tokens),meter:tokenShare,foot:`占全部 Token ${pct(tokenShare)}`,tip:['已算进上方「投入」的 Token 合计。']},
-    {label:lfT(`${rangeName}成本`,`${rangeName} cost`),value:costLabel(cost,true),meter:costShare,foot:`占全部成本 ${pct(costShare)}`,tip:['已算进上方「投入」的成本合计。']},
+    {label:lfT(`${rangeName} 成本`,`${rangeName} cost`),value:costLabel(cost,true),meter:costShare,foot:`占全部成本 ${pct(costShare)}`,tip:['已算进上方「投入」的成本合计。']},
     {label:lfT(`${rangeName}工作区`,`${rangeName} workspaces`),value:String(spaces),foot:view.conversationLinked!=null?`${view.conversationLinked} 个已关联需求 · ${Math.max(0,spaces-view.conversationLinked)} 个未关联`:'按创建时间统计',tip:['对话里每打开一个代码工作区计 1 个。工作区不是 SOP 运行，不计入运行数、成功率和耗时。']},
   ],`<span class="obs-info" tabindex="0">口径<span class="obs-tip" role="tooltip">在对话里直接改代码、不走 SOP 的部分。Token 和成本已算进「投入」合计；工作区和需求不计入「SOP 产出与质量」和「Loop 自动化」。</span></span>`);
 }

@@ -5,6 +5,13 @@ html[data-lang="en"] .platform-sidebar { width:230px }
 html[data-lang="en"] .shell-main { min-width:0 }
 html[data-lang="en"] .nav-label { white-space:normal;line-height:1.3 }
 html[data-lang="en"] .topbar-project-label { white-space:nowrap }
+/* Vietnamese labels run longer than English; give the rail and nav the same
+   wrapping behaviour with a little more room so nothing is clipped. */
+html[data-lang="vi"] .platform-sidebar { width:240px }
+html[data-lang="vi"] .shell-main { min-width:0 }
+html[data-lang="vi"] .nav-label { white-space:normal;line-height:1.3 }
+html[data-lang="vi"] .topbar-project-label { white-space:nowrap }
+html[data-lang="vi"] .lang-switch > button { min-width:34px;padding:0 8px }
 .lang-switch {
   display: inline-flex;
   align-items: center;

@@ -170,6 +170,11 @@ export async function loadApp({ routes = [], hash = '', dispatchReady = true, or
     url: `${origin}/${hash ? `#${hash.replace(/^#/, '')}` : ''}`,
   });
   const { window } = dom;
+  // The product defaults to Vietnamese; these suites assert the Chinese
+  // source copy and formatting, so pin the fixture to Chinese explicitly.
+  // boot.js reads the stored preference, so seed it before any script runs.
+  try { window.localStorage.setItem('loopforge.lang', 'zh'); } catch { /* storage is optional in the fixture */ }
+  window.document.documentElement.dataset.lang = 'zh';
   const router = createFetchRouter(routes);
 
   window.fetch = router.fetch;

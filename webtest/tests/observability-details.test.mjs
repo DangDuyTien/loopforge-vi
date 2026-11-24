@@ -188,7 +188,7 @@ test('conversation code changes have their own group, close the Token ring, and 
   assert.deepEqual(titles.slice(0, 5), ['Vibe Coding 与协作', 'SOP 产出与质量', '投入 · SOP + 对话改代码', '对话改代码 · 不走 SOP', 'Loop 自动化']);
   const groupText = title => groups.find(g => g.title === title).text;
   const conv = groupText('对话改代码 · 不走 SOP');
-  assert.match(conv, /累计需求1其中 1 个已提 PR · 1 个已交付/);
+  assert.match(conv, /累计 需求1其中 1 个已提 PR · 1 个已交付/);
   assert.match(conv, /累计 Token1\.0k占全部 Token 14%/);
   assert.match(conv, /累计工作区32 个已关联需求 · 1 个未关联/);
   assert.doesNotMatch(groupText('投入 · SOP + 对话改代码'), /工作区/, 'the 投入 group keeps three cards');

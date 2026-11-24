@@ -1,4 +1,4 @@
-.PHONY: run test test-mysql clean-mysql build build-chatbot build-gate-mcp coverage coverage-go coverage-chatbot coverage-web coverage-e2e
+.PHONY: run test test-mysql clean-mysql build build-chatbot build-gate-mcp coverage coverage-go coverage-chatbot coverage-web coverage-e2e i18n-check
 
 GOCACHE ?= /tmp/agentflow-gocache
 # Use the local toolchain; go.mod requires go >= 1.26.11.
@@ -12,6 +12,12 @@ test:
 # coverage runs the same gates as CI. Needs web/native-chat
 # (make build-chatbot). COVERAGE_P lowers Go package parallelism on small hosts.
 COVERAGE_P ?= 4
+
+# i18n-check verifies that every Chinese UI key has a Vietnamese translation,
+# that placeholders survive, and that no visible Chinese string in web/*.html
+# is missing from the dictionary.
+i18n-check:
+	node scripts/i18n-check.mjs
 
 coverage: coverage-go coverage-chatbot coverage-web
 
