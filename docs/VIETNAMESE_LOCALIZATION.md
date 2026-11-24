@@ -204,31 +204,32 @@ make i18n-check
 - Một số câu ghép động (số lượng + nhãn) có thể đọc ngắn gọn hơn văn nói tự nhiên, do
   cơ chế ghép chuỗi của upstream; nội dung vẫn đúng và không còn tiếng Trung.
 
-## 10. Gateway APIMaster (9router)
+## 10. Gọi APIMaster trực tiếp (không qua 9router)
 
-LoopForge gọi Claude qua gateway 9router tại `host.docker.internal:20128`. Chạy gateway
-trực tiếp trên macOS dễ bị tiến trình treo hoặc bị kill, nên bản này chạy nó trong
-container có restart policy:
+APIMaster chỉ cung cấp endpoint **OpenAI-compatible** (`https://api.apimaster.ai/v1`),
+không có endpoint Anthropic. Claude Code nói giao thức Anthropic nên không thể gọi thẳng;
+bản này dùng **Codex CLI** gọi trực tiếp APIMaster, bỏ hoàn toàn 9router.
+
+Cấu hình trong LoopForge:
+
+1. **Cài đặt cá nhân → Codex**: nhập API Key APIMaster và Base URL
+   `https://api.apimaster.ai/v1`, thêm model `gpt-6-luna`.
+2. **Vai trò**: executor `codex`, model `gpt-6-luna`.
+3. **Trình thực thi**: runtime Codex để chế độ `API Key` (personal), không dùng đăng nhập
+   cục bộ.
+
+Kiểm tra key trước khi dùng:
 
 ```bash
-mkdir -p /tmp/9router-image
-cat > /tmp/9router-image/Dockerfile <<'DOCKER'
-FROM node:22-bookworm-slim
-RUN npm i -g 9router@0.5.112 --no-audit --no-fund
-ENV HOME=/data
-EXPOSE 20128
-CMD ["9router", "-n", "--skip-update"]
-DOCKER
-
-docker build -t 9router:local /tmp/9router-image
-docker run -d --name 9router --restart unless-stopped \
-  -p 20128:20128 -v "$HOME/.9router:/data/.9router" 9router:local
+curl -s -o /dev/null -w '%{http_code}\n' https://api.apimaster.ai/v1/models \
+  -H "Authorization: Bearer $APIMASTER_API_KEY"
 ```
 
-- DB, provider và API key vẫn nằm ở `~/.9router`, được mount vào container.
-- Kiểm tra: `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:20128/v1/models`
-  (401 là bình thường khi chưa gửi key; 000 nghĩa là gateway chết/treo).
-- Không chạy đồng thời app 9router trên host với container vì sẽ tranh cổng 20128.
-- Key APIMaster hợp lệ nằm trong provider `anthropic-compatible` của 9router; key trong
-  `~/.config/opencode/opencode.json` và biến `APIMASTER_API_KEY` có thể đã hết hạn —
-  kiểm tra bằng `GET https://api.apimaster.ai/v1/models` trước khi dùng.
+`200` là hợp lệ; `401` là key hết hạn.
+
+Lưu ý:
+- Không cần chạy 9router hay bất kỳ gateway nội bộ nào cho luồng này.
+- Nếu bắt buộc dùng Claude Code, cần một adapter Anthropic → OpenAI (không kèm trong bản
+  này) vì APIMaster không nhận `/v1/messages`.
+- Key APIMaster cũ nằm trong `~/.9router` và `~/.config/opencode/opencode.json` đã hết
+  hạn; không dùng lại.
