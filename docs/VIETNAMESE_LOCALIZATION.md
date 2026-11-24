@@ -204,32 +204,30 @@ make i18n-check
 - Một số câu ghép động (số lượng + nhãn) có thể đọc ngắn gọn hơn văn nói tự nhiên, do
   cơ chế ghép chuỗi của upstream; nội dung vẫn đúng và không còn tiếng Trung.
 
-## 10. Gọi APIMaster trực tiếp (không qua 9router)
+## 10. Chạy Codex bằng gói ChatGPT Plus (không gateway, không API key)
 
-APIMaster chỉ cung cấp endpoint **OpenAI-compatible** (`https://api.apimaster.ai/v1`),
-không có endpoint Anthropic. Claude Code nói giao thức Anthropic nên không thể gọi thẳng;
-bản này dùng **Codex CLI** gọi trực tiếp APIMaster, bỏ hoàn toàn 9router.
+Bản này dùng **Codex CLI** với phiên đăng nhập **ChatGPT Plus** sẵn trên máy, gọi thẳng
+OpenAI — không qua 9router và không cần API key.
+
+Kiểm tra phiên đăng nhập:
+
+```bash
+codex login status     # phải in: Logged in using ChatGPT
+```
 
 Cấu hình trong LoopForge:
 
-1. **Cài đặt cá nhân → Codex**: nhập API Key APIMaster và Base URL
-   `https://api.apimaster.ai/v1`, thêm model `gpt-6-luna`.
+1. **Trình thực thi → Codex**: chọn chế độ `Đăng nhập máy` (local), không phải API Key.
 2. **Vai trò**: executor `codex`, model `gpt-6-luna`.
-3. **Trình thực thi**: runtime Codex để chế độ `API Key` (personal), không dùng đăng nhập
-   cục bộ.
+3. Không cần cấu hình Codex API Key hay Base URL.
 
-Kiểm tra key trước khi dùng:
+Runner sẽ copy `~/.codex/auth.json` vào `CODEX_HOME` riêng trong sandbox cho từng lần
+chạy; token không lộ ra ngoài máy.
 
-```bash
-curl -s -o /dev/null -w '%{http_code}\n' https://api.apimaster.ai/v1/models \
-  -H "Authorization: Bearer $APIMASTER_API_KEY"
-```
+Phương án dự phòng khi hết hạn mức Plus: nhập Codex API Key APIMaster
+(`https://api.apimaster.ai/v1`) trong Cài đặt cá nhân và đổi runtime Codex sang `API Key`.
+Lưu ý APIMaster chỉ hỗ trợ OpenAI-compatible, không có endpoint Anthropic, nên **Claude
+Code không dùng trực tiếp được** — phải dùng Codex (hoặc một adapter Anthropic → OpenAI).
 
-`200` là hợp lệ; `401` là key hết hạn.
-
-Lưu ý:
-- Không cần chạy 9router hay bất kỳ gateway nội bộ nào cho luồng này.
-- Nếu bắt buộc dùng Claude Code, cần một adapter Anthropic → OpenAI (không kèm trong bản
-  này) vì APIMaster không nhận `/v1/messages`.
-- Key APIMaster cũ nằm trong `~/.9router` và `~/.config/opencode/opencode.json` đã hết
-  hạn; không dùng lại.
+Các key APIMaster cũ trong `~/.9router` và `~/.config/opencode/opencode.json` đã hết hạn,
+không dùng lại.
