@@ -203,3 +203,32 @@ make i18n-check
   giải thích tiếng Việt khi cần.
 - Một số câu ghép động (số lượng + nhãn) có thể đọc ngắn gọn hơn văn nói tự nhiên, do
   cơ chế ghép chuỗi của upstream; nội dung vẫn đúng và không còn tiếng Trung.
+
+## 10. Gateway APIMaster (9router)
+
+LoopForge gọi Claude qua gateway 9router tại `host.docker.internal:20128`. Chạy gateway
+trực tiếp trên macOS dễ bị tiến trình treo hoặc bị kill, nên bản này chạy nó trong
+container có restart policy:
+
+```bash
+mkdir -p /tmp/9router-image
+cat > /tmp/9router-image/Dockerfile <<'DOCKER'
+FROM node:22-bookworm-slim
+RUN npm i -g 9router@0.5.112 --no-audit --no-fund
+ENV HOME=/data
+EXPOSE 20128
+CMD ["9router", "-n", "--skip-update"]
+DOCKER
+
+docker build -t 9router:local /tmp/9router-image
+docker run -d --name 9router --restart unless-stopped \
+  -p 20128:20128 -v "$HOME/.9router:/data/.9router" 9router:local
+```
+
+- DB, provider và API key vẫn nằm ở `~/.9router`, được mount vào container.
+- Kiểm tra: `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:20128/v1/models`
+  (401 là bình thường khi chưa gửi key; 000 nghĩa là gateway chết/treo).
+- Không chạy đồng thời app 9router trên host với container vì sẽ tranh cổng 20128.
+- Key APIMaster hợp lệ nằm trong provider `anthropic-compatible` của 9router; key trong
+  `~/.config/opencode/opencode.json` và biến `APIMASTER_API_KEY` có thể đã hết hạn —
+  kiểm tra bằng `GET https://api.apimaster.ai/v1/models` trước khi dùng.
