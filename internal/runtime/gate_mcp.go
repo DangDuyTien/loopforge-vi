@@ -39,11 +39,26 @@ func materializeGateMCP(workspace, configRoot, binaryRel, resultPath, driver str
 	if err := writeManagedFile(workspace, binaryPath, raw, 0o700); err != nil {
 		return domain.MCPServerDefinition{}, err
 	}
+	// Claude Code resolves an MCP stdio command against its own working
+	// directory, which is not guaranteed to be the workspace root. Hand it an
+	// absolute path so the gate server always starts; inside a sandbox the
+	// workspace is mounted at /workspace.
+	command := filepath.ToSlash(binaryRel)
+	if strings.EqualFold(strings.TrimSpace(driver), "docker") {
+		command = "/workspace/" + filepath.ToSlash(binaryRel)
+	} else if abs, absErr := filepath.Abs(binaryPath); absErr == nil {
+		command = filepath.ToSlash(abs)
+	}
+	if dir := filepath.Dir(resultPath); dir != "." {
+		if err := os.MkdirAll(filepath.Join(workspace, filepath.FromSlash(dir)), 0o755); err != nil {
+			return domain.MCPServerDefinition{}, fmt.Errorf("prepare gate result directory: %w", err)
+		}
+	}
 	return domain.MCPServerDefinition{
 		ID:        gateMCPServerID,
 		Name:      "LoopForge Gate",
 		Transport: "stdio",
-		Command:   filepath.ToSlash(binaryRel),
+		Command:   command,
 		Environment: map[string]string{
 			"AGENTFLOW_GATE_RESULT_PATH": resultPath,
 		},
